@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Multiplication Tables Exam</title>
+    <style>
+        body {
+            font-family: 'Comic Sans MS', cursive, sans-serif;
+            background: linear-gradient(90deg, #FF99CC, #66CCFF);
+            color: white;
+            position: relative;
+        }
+        h1 {
+            text-align: center;
+            color: #FF69B4;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+        }
+        #container {
+            width: 80%;
+            margin: 0 auto;
+            text-align: center;
+            padding-top: 20px;
+        }
+        #question {
+            font-size: 36px;
+            margin-bottom: 20px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+            color: #ffffff; /* Sky blue */
+        }
+        #answer {
+            font-size: 24px;
+            padding: 10px 20px;
+            border-radius: 20px;
+            border: 2px solid #ccc;
+            margin-bottom: 20px;
+        }
+        button {
+            padding: 15px 30px;
+            font-size: 24px;
+            background-color: #00BFFF; /* Deep sky blue */
+            color: white;
+            border: none;
+            border-radius: 30px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+        }
+        button:hover {
+            background-color: #1E90FF; /* Dodger blue */
+        }
+        #result {
+            font-size: 24px;
+            color: #87CEFA; /* Sky blue */
+            margin-top: 20px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+        }
+        @keyframes fadeIn {
+            0% { opacity: 0; }
+            100% { opacity: 1; }
+        }
+        .fadeIn {
+            animation-name: fadeIn;
+            animation-duration: 1s;
+        }
+        /* Time limit display */
+        #time-limit {
+            position: absolute;
+            bottom: 10px;
+            right: 10px;
+            padding: 10px;
+            border-radius: 10px;
+            background: linear-gradient(90deg, black, #8B0000); /* Black to dark red */
+            color: white;
+            font-size: 20px;
+            text-align: center;
+            box-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+        }
+    </style>
+</head>
+<body>
+    <div id="container">
+        <h1>Multiplication Tables Exam</h1>
+        <p id="question" class="fadeIn"></p>
+        <input type="number" id="answer" placeholder="Enter your answer" class="fadeIn">
+        <button onclick="checkAnswer()" class="fadeIn">Submit</button>
+        <p id="result" class="fadeIn"></p>
+    </div>
+
+    <div id="time-limit">Time Left: <span id="time">30:00</span></div>
+
+    <script>
+        let currentQuestionIndex = 0;
+        const questions = [];
+        let correctAnswers = 0;
+        let timeLeft = 30 * 60; // 30 minutes in seconds
+        let timerId;
+
+        function generateQuestions() {
+            // Generate questions for tables 2 through 9
+            for (let table = 2; table <= 9; table++) {
+                for (let multiplier = 2; multiplier <= 9; multiplier++) {
+                    const question = `${table} x ${multiplier} = ?`;
+                    const answer = table * multiplier;
+                    questions.push({ question, answer });
+                }
+            }
+            // Shuffle the questions randomly
+            shuffle(questions);
+            // Display the first question
+            displayQuestion();
+            // Start the timer
+            timerId = setInterval(updateTime, 1000);
+        }
+
+        function shuffle(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+        }
+
+        function displayQuestion() {
+            const currentQuestion = questions[currentQuestionIndex];
+            document.getElementById('question').textContent = currentQuestion.question;
+            document.getElementById('answer').value = ''; // Clear previous answer
+            document.getElementById('result').textContent = ''; // Clear previous result
+            document.getElementById('answer').focus(); // Focus on answer input field
+        }
+
+        function checkAnswer() {
+            const userAnswer = parseInt(document.getElementById('answer').value);
+            const currentQuestion = questions[currentQuestionIndex];
+            if (userAnswer === currentQuestion.answer) {
+                document.getElementById('result').textContent = 'Correct!';
+                correctAnswers++;
+            } else {
+                document.getElementById('result').textContent = 'Incorrect. Try again.';
+            }
+            currentQuestionIndex++;
+            if (currentQuestionIndex < 50) {
+                displayQuestion();
+            } else {
+                document.getElementById('question').textContent = 'All questions answered!';
+                document.getElementById('answer').style.display = 'none';
+                document.getElementById('result').textContent = `You answered ${correctAnswers} out of 50 questions correctly.`;
+                document.querySelector('button').style.display = 'none';
+                clearInterval(timerId); // Stop the timer
+            }
+        }
+
+        function updateTime() {
+            if (timeLeft > 0) {
+                const minutes = Math.floor(timeLeft / 60);
+                const seconds = timeLeft % 60;
+                document.getElementById('time').textContent = `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+                timeLeft--;
+            } else {
+                clearInterval(timerId);
+                autoSubmit();
+            }
+        }
+
+        function autoSubmit() {
+            document.getElementById('answer').disabled = true;
+            document.querySelector('button').disabled = true;
+            checkAnswer();
+        }
+
+        window.onload = generateQuestions; // Generate questions when the page loads
+    </script>
+</body>
+</html>
